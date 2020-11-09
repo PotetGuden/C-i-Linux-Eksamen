@@ -1,0 +1,19 @@
+Oppgave 4 Dokumentasjon
+
+Først så tok jeg å skrev koden i en .c fil, og kjørte den for å se om det kom noen feil. Det var noen få ting som måtte til for at koden skulle kompiles.
+sånn som noen includes stdio stlib math osv. koden ville fortsatt ikke kjøre fordi den ikke fant pow(), så jeg man paget pow i shell og fant ut at det trengtes -lm når man kompilet filene så jeg la det inn i makefilen min. Jeg tviler på at dette var en av "feilene" i koden, men  er verdt å nevne.
+Etter dette kompilet koden helt fint, og det kom ingen feilmeldinger og når man kjørte executablen så skjedde ingenting :)))))
+
+Så det jeg startet med var jo å prøve å skjønne hva som skjedde, så jeg laget printf() på nesten alle ting som jeg ikke skjønte hva gjorde, og fant etterhvert ut av noen forskjellige ting. Jeg regnet jo med at det hadde noe med å gjøre med det siste tallet i andre kodeblokk av kredittkortet (som nevnt i oppgaven) så jeg prøvde å teste ut litt forskjellige funksjoner for å se om jeg kunne spotte noen feil. (For en kjip kode å lese..) Men når jeg printet ut den rare for-loopen for å "Calculate the cardnumber as a 64 bit integer" så fikk man et ganske stort minus tall, og så at for-loopen kjørte 5 ganger istedenfor 4 som den skulle. Husker ærlig talt ikke rekkefølgen jeg løste de forskjellige feilene på, men nevner 2 her og nå fordi det er de jeg har funnet så langt. 
+
+Den ene feilen var jo at når andre segment startet på 123x så skulle noe skje, og hvis tallet 'x' var 9 så kunne det bli feil. Det var fordi (cc->p->digit[cc->p->digit[3]/((cc->p->digit[3]-'0')%9)]) blander characters og tall, så man ville fått ascii-verdien av hvert tall, og noen operasjoner ville blitt utført, ihvertfall så er det en (% 9) på slutten som gjorde at (cc->p->digit[3]-'0')
+ville blitt '9' - '0' = tallet (9) også ville man gjort 9 % 9 som blir 0, også ville man tatt første del av den koden (cc->p->digit[cc->p->digit[3]) som er '9', så hvis man tar 9 / 0 så blir det feil, dermed var dette feilen, det med 9 % 9 = 0 også dele et tall med 0 går ikke i c. Dette var selvfølgelig hvis char *c = "42421239xxxxxxxx"
+Jeg lar også mine printf() og kommentarer bli igjen i filen, så du kan se litt hvordan jeg har tenkt. (kanskje kjipt for deg å lese, men da ser du litt hva jeg har gjort/tenkt) måten jeg løste det på var å sette (j = cc->p->digit[3];) fordi alt man ville var jo å få tak i det 4.tallet i segmentet. Denne if-setningen triggres jo bare hvis "node" nr2 = "123x"
+
+Feil nr 2, fant jeg ut når jeg printet ut for-loopen og så at den ble gjort 5 ganger, FORDI man mallocer minne til pc->p altså neste "blokk" før man gjør noe med den, i while-loopen tidligere i koden. har også kommentert litt rundt det. Det gjorde at kreditkortnummere så ganske riktig ut, men den siste for-loopen la til en 0.0001 value til kortnummeret, noe som blir oversett pga liten verdi,(fjern den if-setningen jeg la til i while-loopen for å se hvordan det ser ut), det vil også si at jeg løste det problemet ved å lage en if-setning rett etter at i-pointern har inkrementert. Sånn at den ikke mallocer neste del. Det er jo ikke en optimal løsning, men en midlertidig fiks på problemet :D
+
+Til slutt så kom jeg på at jeg kunne bruke valgrind, for å sjekke etter minnelekasjer, så jeg skrev i shell "valgrind ./main" og fikk vite at   "total heap usage: 5 allocs, 2 frees, 1,120 bytes allocated", noe som fikk meg til å tenke på at man allokerer minne til pc->p uten å free() de, så hvis man husker å frigjøre alle de 3 "p'ene" på slutten så er problemet fikset.
+free(cc->p->p->p);
+free(cc->p->p);
+free(cc->p);
+også i denne rekkefølgen sånn at man klarer å få tak i de siste "blokkene" i linked listen

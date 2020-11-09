@@ -1,0 +1,13 @@
+Oppgave 6 Dokumentasjon
+
+Denne oppgaven brukte jeg forferdelig lang tid på..
+Og det startet med at jeg lagde en struct som inneholdt en char array med 10 plasser, ble 11 til slutt når jeg så at 0-termineringen tok plass i bufferet.
+Så lagde jeg en test.txt fil og skrev noe random der. for å teste om ting funket.
+Det var nokså greit å åpne en fil for "r" og lese av hva som står der og lagre 10 og 10 characters inn i bufferet, for så å printe det ut, i en whileloop, som kjørte til size'n ikke lenger er 10, hvis den ble under, så lagde jeg en egen if-setning for den, som også inkrementerte en int i samme struct. som gjorde at jeg kan printe ut antall bokstaver i tekstfilen.
+Så når jeg kunne lese fra en fil og printe ut 10 og 10 bokstaver fra den filen, samt inkrementere antall bokstaver. så begynte jeg med threading, og her begynte problemene og hope seg opp. 
+Jeg begynte først med mutex lock, noe som endte med at jeg konkluderte med at semaphore "locks" var bedre, etter å sett litt på hvordan de fungerer. I starten så lagret jeg også fil navnet fra argv[1] i en variabel i main og sendte den med threaden, men innså fort at jeg trengte å få tak i samme struct i main funksjonen og thread funksjonen, så da la jeg til fil navnet i structen og sendte heller med hele structen med threaden. Noe jeg brukte super lang tid for å få til "ordentlig" :)))
+
+
+
+Jeg bruker også ubuntu
+-pthread -lrt 

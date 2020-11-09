@@ -1,0 +1,15 @@
+﻿Oppgave 2 Dokumentasjon
+
+Denne oppgaven gikk egentlig ganske greit, jeg hadde jo laget bubble sort fra før av, så jeg bare gjenbrukte litt av den koden, og skrev om det jeg trengte.
+
+Startet vel egentlig med å lage den structen som man skulle ha, som skulle inneholde en string, en int, og en peker til arrayet den er en del av. La også pragma pack() over og under for å få fjernet padding I structen (det har jo ikke så veldig mye å si I så små oppgaver. Så jeg kommer nok kanskje ikke til å gjøre det på de neste oppgavene). Etterfulgt kommer prototypene til funksjonene, og disse ligger da I header filen.
+
+Så var bare bare å leke seg litt med å sette informasjon I structen, og bruke argv[] sine argumenter som input-string, og strlen() av den stringen, og gi hver node en peker til arrayet, som blir opprettet I main.
+
+Så var det bare å kjøre BubbleSort funksjonen, som jeg hadde gjort mye av grunnarbeidet fra før av, og lage noen printf() som viser hvordan de ligger iforhold til hverandre usortert og sortert. Denne funksjonen blar jo da igjennom arrayet og “Swapper” plass om det trengs og printer ut riktig informasjon til slutt.
+
+Siste funksjonen GetIndex() tar imot en node (en struct) og begynner å loope igjennom starten av arrayet til den finner riktig node, og printer da ut index plasseringen til oppgitt node. Index’en får jeg da ved hjelp av en int counter som inkrementerer for hver gang den ikke finner riktig element.
+
+Til slutt kjørte jeg en “valgrind ./main c b a” for å sjekke om det var noen minnelekasjer noen sted, og så det manglet å frigjøre 3 stykker, så derfor la jeg til free() I loopen etter hver node ble laget.
+
+Har også kommentert ut 2 GetIndex() tester som du kan teste om du vil.

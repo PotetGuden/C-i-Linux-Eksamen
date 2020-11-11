@@ -11,7 +11,7 @@
 //#define PORT 8080 
 #define SA struct sockaddr 
 
-// ./hello -server 8080
+// ./main -server 8080
 int main(int argc, char *argv[]){ 
 	int i = 1;
 	int port;
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]){
     struct sockaddr_in servaddr, cli; 
   
     sockfd = socket(AF_INET, SOCK_STREAM, 0); 
-        printf("Socket successfully created..\n"); 
+        printf("Socket successfully created..\n\n"); 
         
     memset(&servaddr, 0, sizeof(servaddr)); 
   
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]){
     servaddr.sin_port = htons(port); 
   
     connect(sockfd, (SA*)&servaddr, sizeof(servaddr));
-        printf("connected to the server..\n"); 
+        //printf("Trying to connect to server ASD, do you wish to continue? Y/N...\n"); 
   	
     func(sockfd); 
     close(sockfd); 
@@ -55,26 +55,58 @@ int main(int argc, char *argv[]){
    */ 
 } 
 
-void func(int sockfd) 
-{ 
+void func(int sockfd) { 
+	int numberOfMsg = 0;
     char buff[MAX]; 				// MAX = 80
     int n; 
+    char *id = malloc(sizeof(char*));
+    //read(sockfd, buff, sizeof(buff));
     for (;;) { 
+    	
         bzero(buff, sizeof(buff)); 
-        printf("Client: "); 
+        
+        if(numberOfMsg == 0){							// Sender en tom melding, bare for at jeg skal få id tilbake
+     		write(sockfd, buff, sizeof(buff));
+         	//printf("Sender ingenting\n");
+         	numberOfMsg++;
+         	continue;
+    	}
+        if(numberOfMsg == 1){							// Har fått tak i id, spør klient om de vil fortsettte
+        	read(sockfd, buff, sizeof(buff));
+        	printf("Trying to connect to server %s, do you wish to continue? Y/N...\n", buff); 
+        	printf("To Server: ");
+        	bzero(buff, sizeof(buff));        	
+	        while ((buff[n++] = getchar()) != '\n');
+        	write(sockfd, buff, sizeof(buff));
+        	
+        	read(sockfd, buff, sizeof(buff));
+        	if(buff[0] == '4'){
+        		break;
+        	}
+        	numberOfMsg++;
+        	continue;
+        }
+		if(numberOfMsg == 2){							// Hvis man kommer hit så har man gjort ferdig "handshaken"
+			printf("Handshake was sucessful, continue to write if you want to.\n");
+        }
+        printf("To Server: "); 
         n = 0; 
+        //read(sockfd, buff, sizeof(buff));       
         
         while ((buff[n++] = getchar()) != '\n');
          
         write(sockfd, buff, sizeof(buff)); 
         bzero(buff, sizeof(buff)); 
         read(sockfd, buff, sizeof(buff)); 
-        printf("Server : %s", buff); 
+        
+        printf("\nFrom Server : %s", buff); 
         if ((strncmp(buff, "exit", 4)) == 0) { 
-            printf("Client Exit..\n"); 
+            printf("Shutting down..\n"); 
             break; 
         } 
+        numberOfMsg++;
     } 
+    free(id);
 } 
   
 

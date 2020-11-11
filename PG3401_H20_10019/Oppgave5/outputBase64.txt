@@ -1,0 +1,1 @@
+Arbeidet med dette emnet skal gi studenten innfring i programmeringssprket C og hvordan dette kan brukes til  interagere direkte med operativsystemet. Det skal ogs gi forstelse av operativsystemet Linux og kunnskap om hvordan dette virker.

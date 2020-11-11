@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 		}
 		i++;
 	}
-	printf("Trying to connect with userid: %s\n", id);
+	printf("Trying to connect with userid : %s\n", id);
 	
     int sockfd, connfd, len; 
     struct sockaddr_in servaddr, cli; 
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     	printf("Server accepted the client\n");
     }
   
-    func(connfd); 
+    func(connfd, id); 
   	
   
     close(sockfd); 
@@ -87,33 +87,82 @@ int main(int argc, char *argv[])
    listen
    accept
    */ 
-    
+
 } 
 
-void func(int sockfd) 
+void func(int sockfd, char *id) 
 { 
     char buff[MAX]; 
-    int n; 
-    printf("connected..\n");
+    int n = 0; 
+  	int numberOfMsg = 0;
+    printf("connected..\n\n");
+	char *handshake = malloc(sizeof(char*)); 
+    //char startMsg[] = "Trying to connect to ID, do you wish to continue? Y/N\n";
+    //write(sockfd, startMsg, 100);			// Harkodet input og "100"!
     for (;;) { 
         bzero(buff, MAX); 
   
-        read(sockfd, buff, sizeof(buff)); 
         
-        printf("Server: %s\t Client : ", buff); 
+        
+        //printf("number: %i id: %s \n",numberOfMsg, id);
+
+       	read(sockfd, buff, sizeof(buff)); 
+       	
+       	if(numberOfMsg == 0){						// Mottar ingenting, skal bare sende id til klient
+       		bzero(buff,MAX);
+       		write(sockfd, id, sizeof(id));
+       		numberOfMsg++;
+       		continue;
+       	}
+       	
+       	if(numberOfMsg == 1 && buff[0] == 'Y'){		// Om bruker svarer 'Y', Sammenligner ascii verdiene
+        	handshake = "200 OK\n";
+        	printf("Server: %s", buff); 
+        	bzero(buff, MAX); 
+        	
+        	while(handshake[n] != '\n'){
+        		buff[n] = handshake[n];
+        		n++;
+        	} 
+        	
+        	write(sockfd, buff, sizeof(buff));
+    		
+    		numberOfMsg++;
+    		
+    		continue;
+        		
+        } else if(numberOfMsg == 1) {				// Aka hvis brukeren ikke svarer 'Y'
+        	printf("Server shutting down..");
+        	handshake = "403 Forbidden\n";
+        	
+        	bzero(buff, MAX);
+        	while(handshake[n] != '\n'){
+        		buff[n] = handshake[n];
+        		n++;
+        	}
+        	write(sockfd, buff, sizeof(buff));
+        	
+        	read(sockfd, buff, sizeof(buff));   	 // Venter på at client har stoppet
+        	numberOfMsg++;
+        	
+        	break;
+        } 
+        
+        printf("From Client: %s\nTo Client : ", buff); 
         
         bzero(buff, MAX); 
         n = 0; 
- 
-        while ((buff[n++] = getchar()) != '\n') 
-            ; 
+ 	
+        while ((buff[n++] = getchar()) != '\n');
  
         write(sockfd, buff, sizeof(buff)); 
 
         if (strncmp("exit", buff, 4) == 0) { 
-            printf("Server Exit...\n"); 
+            printf("Server shutting down..\n"); 
             break; 
         } 
+        numberOfMsg++;
     } 
+    free(handshake);
 } 
 

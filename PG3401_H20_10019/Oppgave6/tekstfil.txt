@@ -1,2 +1,5 @@
-Her er det masse tekst som skal tolkes av min c filer
-Linje nr 2
+Her har jeg masse tekst
+som
+skal 
+produseres og testes
+om alt funker

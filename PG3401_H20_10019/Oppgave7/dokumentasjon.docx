@@ -1,14 +1,15 @@
 ﻿Dokumentasjon Oppgave 7
 
 Denne oppgaven var ganske grei ettersom jeg hadde gjort ganske mye av oppgaven fra før av.
-Så blir litt rart å si fremgangsmåten på noe av det her ettersom mye av det jeg leverer nå er gjort fra før.
+Så blir litt rart å si fremgangsmåten på noe av det her ettersom noe av det jeg leverer nå er gjort fra før.
 
 Men det jeg har gjort var å lage en mappe for server og en for client, og gjøre klart makefiles osv.. 
+
 Server filen:
 	I main() så looper jeg først igjennom hele argv[] som man sender med når 	man skal kjøre koden, og lagrer port og id om man har skrevet -port og -id 	etterfulgt av da portnr/id-navn.
 	Så lager man en socket, så setter man client settings, så bind() man, 	etterfulgt av listen() , så accepter() man til slutt. Etter	 det så kjører 	jeg funksjonen som skal “snakke” med klient/server, og huske å close 	socketen når man er ferdig. 
 
-	Funksjonen har en evig loop, for å kommunisere med en klient, måten jeg 	har valgt å løse oppgaven på er å hardkode de første 2 meldingene mellom 	klient/server, så først mottar server ingenting, bare for at server kan 	sende tilbake ID noe som blir laget I main, og blir sendt med funksjonen. 	Hvis da bruker skriver ‘Y’ så fortsetter kommunikasjonen, hvis ikke så a 	vsluttes både server og klient (I terminalen). For at kommunikajsonen skal 	fortsette så bruker man read(), for å sende informasjon fra server så 	bruker jeg en while-loop som kjører så lenge det ikke har blitt tastet inn 	enter-knappen(\n) med getchar(); og sender den informasjonen med write(), 	for så å read() igjen, sånn kommuniserer server/klient med hverandre, helt 	til man trykker ctrl+c eller at klient ikke skriver ‘y’
+	Funksjonen har en evig loop, for å kommunisere med en klient, måten jeg 	har valgt å løse oppgaven på er å hardkode de første 2 meldingene mellom 	klient/server, så først mottar server ingenting, bare for at server kan 	sende tilbake ID noe som blir laget I main, og blir sendt med funksjonen. 	Hvis da bruker skriver ‘Y’ så fortsetter kommunikasjonen og man kan da 	sende så mange meldinger man vil til hverandre annenhver gang, hvis man 	ikke skriver Y, så avsluttes både server og klient (I terminalen). For at 	kommunikajsonen skal fortsette så bruker man read(), for å sende 	informasjon fra server så bruker jeg en while-loop som kjører så lenge det 	ikke har blitt tastet inn enter-knappen(\n) med getchar(); og sender den 	informasjonen med write(), for så å read() igjen, sånn kommuniserer 	server/klient med hverandre, helt til man trykker ctrl+c eller at klient 	ikke skriver ‘y’
 Klient filen:
 	I main() så henter jeg inn hvilken server(port) man skal koble seg opp 	imot, på samme måte som server-filen. Åpner en socket, å bruker 	127.0.0.1(localhost) til loopback. Så connecter() man, og kjører 	funksjonen sin.
 

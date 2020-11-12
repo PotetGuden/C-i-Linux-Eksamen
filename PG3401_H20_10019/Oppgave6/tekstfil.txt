@@ -1,5 +1,2 @@
-Her har jeg masse tekst
-som
-skal 
-produseres og testes
-om alt funker
+Her er det masse tekst som skal leses 10 og 10 bokstaver om gangen
+her er en ny linje

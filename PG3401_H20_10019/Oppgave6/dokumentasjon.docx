@@ -1,4 +1,4 @@
-Oppgave 6 Dokumentasjon
+﻿Oppgave 6 Dokumentasjon
 
 Det startet med at jeg lagde en struct som inneholdt en char array med 11 plasser, bruker array[11] til 0-termineringen
 Så lagde jeg en tekstfil.txt fil og skrev noe random der, for å teste om ting funket.
@@ -6,10 +6,10 @@ Så lagde jeg en FILE pointer for å lese av filen, som jeg bruker fread() for �
 For å veksle mellom main-tråden og arbeids-tråden så valgte jeg å bruke semaphorer, fordi jeg hadde lyst til å prøve det, er ikke sikkert det er den beste løsningen, men det funker helt fint.
 Så i main så initialiserte jeg 2 semaphores med sem_open() og satte valuen til 0 på den ene og 1 på den andre. 
 sånn at jeg kunne bruke sem_post() og sem_wait() for å inkrementere/dekrementere valuen, sånn at de "låste" seg for hver gang en av de skjedde.
-så main funksjonen starter med en sem_wait() på den første semaphoren som var 0, og siden jeg starter arbeidstråden sin funksjon med sem_wait() på semaphor2 så blir den = 0 og avslutter i while-loopen med sem_post() som da gir et klar-signal til main tråden at det er den sin tur, og sånn veksler jeg imellom de 2 trådene.
-Jeg legger også til 10 til en int i structen som da holder styr på hvor mange bokstaver det er totalt, om bufferet ikke blir helt fylt opp, får den da strlen(buffer)-1 for 0-termineringen. 
+så main funksjonen starter med en sem_wait() på den første semaphoren som var 0, og siden jeg starter arbeidstråden sin funksjon med sem_wait() på semaphor2 så blir den = 0 og avslutter i while-loopen med sem_post() som inkrementerer den valuen, sånn at main kan gjøre sem_wait, noe som da gir et klar-signal til main tråden at det er den sin tur, og sånn veksler jeg imellom de 2 trådene.
+Jeg legger også til tallet 10 for hver gang arbeidstråden kjører til en int i structen som da holder styr på hvor mange bokstaver det er totalt. Om filePointern er på slutten av filen(feof) så bruker jeg strlen(buffer)-1 itilfelle bufferet ikke har 10 tegn. (-1 er for 0-termineringen).
 Jeg fant også ut av at jeg ville lagre filnavnet i structen min, og sendte da med hele structen til tråd funksjonen.
 
 
-Jeg bruker også ubuntu
+Husk at jeg bruker ubuntu, sånn at gcc’en din (I makefilen) blir riktig hvis du skal teste ut
 -pthread -lrt 

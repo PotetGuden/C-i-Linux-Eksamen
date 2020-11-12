@@ -16,7 +16,7 @@ så lenge man har en struct med pNext,pPrev, og en som holdt styr på hva som va
 
 "Slette alle elementer i listen som har et gitt navn" litt av det samme. 
 	loope igjennom listen
-	sjekke om node->pszName = inputNavn
+	sjekke om node->name = inputNavn
 	flytte litt på pekere (node->pPrev->pNext = node->pNext) og motsatt, for å "fjerne" noden
 
 "Sletter alle elementer som har en alder lavere(som jeg valgte) enn input", mye av det samme her også
@@ -35,5 +35,7 @@ Siden jeg brukte getchar() så valgte jeg å escape unna \n ved å sjekke om det
 Jeg valgte å spørre bruker om de vil fortsette for ryddighetens skyld (hva jeg syntes passet best ihvertfall)
 
 Helt til slutt fikset jeg litt opp i noen bugs som oppsto etter bruker hadde gjort litt forskjellige alternativer :)
+
+Vil få noen warnings når man compiler koden, fordi jeg ikke "sjekker" return valuen til scanf (Kunne "fikset" de ved å lage noen if-setninger til scanf(), men det ble uoversiktlig og unødvendig) derfor har det ikke noe å si i dette tilfelle.
 
 

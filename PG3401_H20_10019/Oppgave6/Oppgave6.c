@@ -57,19 +57,19 @@ void *PrintMessage (void *ms){
 		sem_wait(sem_receiv);			// Venter på at main skal gi klar signal
 		fread(ms2->buff,sizeof(char), sizeof(ms2->buff)-1, (FILE*)fp);	
 		if(feof(fp)){									
-			ms2->totalLetters += strlen(ms2->buff)-1;		// -1 for 0-termineringen
-			//printf("Working thread gives signal.\n");
+			ms2->buff[strlen(ms2->buff)-1] = '\0';	// 0-terminerer manuelt på slutten av buff 
+			ms2->totalLetters += strlen(ms2->buff);
+			printf("String: %s strlen: %d sizeof: %d\n", ms2->buff, strlen(ms2->buff), sizeof(ms2->buff)); // SLETT DENNE
 			ms2->endOfFile = TRUE;
 			break;
 		}
 		ms2->buff[11] = '\0';
 		ms2->totalLetters += 10;
-		//printf("Working thread gives signal.\n");
 		sem_post(sem_prod);				// Gir main klar signal
    	}
    	
    	fclose(fp); 
-	sem_post(sem_prod);					// Valgte å sette den her istedenfor siste gang inni loopen, og jeg trengte å close fp, mest for ordensskyld.			
+	sem_post(sem_prod);					// Valgte å sette den her istedenfor siste gang inni loopen, siden jeg trengte å close fp, mest for ordensskyld.			
    	
    	return NULL;
 }

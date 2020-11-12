@@ -1,30 +1,29 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 
 #include "Oppgave3.h"
 
-LIST *CreateNode (void *pvData, int iSze){		// return type?
-   	LIST *pThis = malloc (sizeof(LIST) + iSze);
+LIST *CreateNode (void *name, int age){		
+   	LIST *pThis = malloc (sizeof(LIST));		// + age?
    	if (pThis != NULL) {
-      	memset (pThis, 0, sizeof(LIST) + iSze);
-      	pThis->iSze = iSze;
-      	memcpy (pThis->byBuf, pvData, iSze);
+      	memset (pThis, 0, sizeof(LIST));		// + age?
+      	pThis->age = age;
+      	memcpy (pThis->name, name, sizeof(name));
    	}
    	return pThis;
 }
 
-int AddToList (LISTHEAD **ppHead, void *pvData, int iSze){
+int AddToList (LISTHEAD **ppHead, void *name, int age){
    	int iRc = ERROR;
    	
-   	if(strlen(pvData) > MAX_SIZE_BUFF){
-		printf("Name too big");
+   	if(strlen(name) > MAX_SIZE_BUFF){
+		printf("Navnet du har skrevet inn er for stort, prøv igjen..\n");
 		
 		return iRc;
 	}
 	
-   	LIST *pThis = CreateNode (pvData, iSze);
+   	LIST *pThis = CreateNode (name, age);
    	if (pThis != NULL) {
       	if ((*ppHead)->pTail == NULL && (*ppHead)->pHead == NULL) { // Ingen i listen fra før av, dette blir da eneste element i listen
          	(*ppHead)->pHead = pThis;			
@@ -55,25 +54,22 @@ int GetElement(LISTHEAD **ppHead, int n){
 		return iRc;
 	}
 	
-	LIST *curr = malloc(sizeof(LIST));
-	memset(curr,0,sizeof(LIST));
-	
-   	curr = (*ppHead)->pHead;
+	LIST *curr = (*ppHead)->pHead;
+   	
+   	
    	while (curr) {
    		if(i == n){
-   			printf("\nFant riktig nummer: %d, Navnet for denne indexen er: %s\n", n, curr->byBuf);
-   			iRc = OK;	
-   			free(curr);		
+   			printf("\nFant riktig nummer: %d, Navnet for denne indexen er: %s\n", n, curr->name);
+   			iRc = OK;			
    			return iRc;			// Avslutt loop
    		} 
-      	//printf("currently at %d\n", i);
       	curr = curr->pNext;
       	i++;
    	}
    	
-   	//assert(i <= n);				// Hvis man har kommet forbi while-loopen så har har man ikke funnet N 				
+   	// Hvis man har kommet forbi while-loopen så har har man ikke funnet N 				
    	printf("Du skrev inn et ugyldig tall, vær sikkert på at det er nok elementer..\n");
-   	free(curr);
+
    	return iRc;
 }
 
@@ -82,8 +78,8 @@ int GetElementByName(LISTHEAD **ppHead, char *name){
 	int i = 1;
    	LIST *curr = (*ppHead)->pHead;
    	while (curr) {
-   		if(strcmp(curr->byBuf, name) == 0){
-   			printf("Fant riktig navn: \"%s\", index: %d\n", curr->byBuf, i);
+   		if(strcmp(curr->name, name) == 0){
+   			printf("Fant riktig navn: \"%s\", index: %d\n", curr->name, i);
    			iRc = OK;			
    			return iRc;   		// Avslutt loop
    		} 
@@ -102,21 +98,24 @@ int DeleteNameNode(LISTHEAD **ppHead, char *name){
    	LIST *curr = (*ppHead)->pHead;
    	
    	while (curr) {
-   		if(strcmp(curr->byBuf, name) == 0){
+   		if(strcmp(curr->name, name) == 0){
    			printf("Fjernet navnet \"%s\" fra databasen\n", name);
-   			RemoveFromList(&*ppHead, curr);
+   			iRc = RemoveFromList(&*ppHead, curr);
    						
-   			if(iRc == OK) free(curr);
+   			
    			//return iRc;   	
    		} 
       	curr = curr->pNext;
       	i++;
    	}
-
-   	printf("\nFant ikke navnet \"%s\" i databasen..\n", name);
+	if(iRc == OK){
+		free(curr);
+	} else{
+   		printf("\nFant ikke navnet \"%s\" i databasen..\n", name);
+   	}
    	return iRc;
 }
-
+// Liten feil som ikke fjernet siste navn i linked list, om alder var mindre enn det som var oppgitt
 int RemoveAllLessThanN (LISTHEAD **ppHead, int n){
 	int iRc = ERROR;
 	int i = 1;
@@ -124,14 +123,15 @@ int RemoveAllLessThanN (LISTHEAD **ppHead, int n){
    	LIST *curr = (*ppHead)->pHead;
   
    	while (curr) {
-   		if(curr->iSze < n){
-   			printf("\nFjernet navnet \"%s\" som er: %d år gammel\n", curr->byBuf, curr->iSze);
-   			RemoveFromList(&*ppHead, curr);
-   			if(iRc == OK) free(curr);  
+   		if(curr->age < n){
+   			printf("\nFjernet navnet \"%s\" som er: %d år gammel.\n", curr->name, curr->age);
+   			iRc = RemoveFromList(&*ppHead, curr);
+   			
    		} 
       	curr = curr->pNext;
       	i++;
    	}
+   	if(iRc == OK) free(curr);  
    	return iRc;
 }
 
@@ -146,13 +146,13 @@ int RemoveFromList (LISTHEAD **ppHead, LIST *pToDelete){
    		iRc = OK;
    	} else if ((*ppHead)->pHead == pToDelete) {							// Bare om det er første nodem
       	(*ppHead)->pHead = pToDelete->pNext;
+      	(*ppHead)->pHead->pPrev = NULL;
       	iRc = OK;
    	} else if((*ppHead)->pTail == pToDelete){							// Bare om det er siste noden
-   		(*ppHead)->pTail->pPrev->pNext = (*ppHead)->pTail->pNext;
-   		(*ppHead)->pTail = (*ppHead)->pTail->pPrev;
-   		
+   		(*ppHead)->pTail = pToDelete->pPrev;
+   		(*ppHead)->pTail->pNext = NULL;
    		iRc = OK;
-   	} else {															// Ellers bla igjennom og sjekk
+   	} else {															// Ellers bla igjennom listen og flytt pekerene
       	pThis = (*ppHead)->pHead;
       	while (pThis != NULL) {
          	if (pThis == pToDelete) {
@@ -164,7 +164,6 @@ int RemoveFromList (LISTHEAD **ppHead, LIST *pToDelete){
          	pThis = pThis->pNext;	
       	}
    	}
-   	free(pThis);
-
+   	//free(pThis);
 	return iRc;
 }

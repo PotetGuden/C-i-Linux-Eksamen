@@ -5,7 +5,7 @@
 
 #include "Oppgave5.h"
 
-// HUSK Å PRINTE UT TIL EN FIL
+#define MAX_BUFFER_SIZE 1000
 
 int main(int argc, char *argv[]){
 
@@ -19,24 +19,18 @@ int main(int argc, char *argv[]){
 	outputFile = fopen("outputBase64.txt", "w");		// Oppretter ny fil om det ikke finnes noe med det navnet
 	
 	
-	char data[1000];
+	char data[MAX_BUFFER_SIZE];
 	char *output;
-	//size_t outLength;
 	
 	fscanf(inputFile, "%s", data);
 	printf("Data fra filen:\n%s\n", data);
-	
-	
-	//printf("Data: %s\n", data);
 
-	size_t outLength = strlen(data)/4*3-1;				// size av data / 4*3 pga det er scalingen fra b64 til encoding format 
+	size_t outLength = strlen(data)/4*3-1;				// size av data / 4*3 pga det er scalingen fra b64 til encoding format, -1 er pga '='-tegnet
 	//outLength = decodeSize;    							// +1 er for 0-terninering
 	output = malloc(outLength);
 
-	printf("%li\n", outLength);
-
 	if(!b64Decoder(data, output, outLength)){  
-		printf("Decode Failure\n");
+		printf("Dekoding feilet..\n");
 		return 1;
 	}
 	
@@ -74,16 +68,12 @@ int b64Decoder(char *data, char *output, size_t outLength){
 
 	for (i = 0, j = 0; i < dataLength; i += 4, j += 3) {
 		v = decodingTable[data[i]-43];
-		//v = (v << 6) | decodingTable[data[i+1]-43];
-		//v = data[i+2] == '=' ? v << 6 : (v << 6) | decodingTable[data[i+2]-43];
-		//v = data[i+3] == '=' ? v << 6 : (v << 6) | decodingTable[data[i+3]-43];
-		
-		
+	
 		for(int l = 0; l <= 3; l++){
 			if(data[i+l] == '='){					// '=' er tegnet for padding noe som vil være på slutten av teksten vår.
 				v = v << 6;							// hvis vi er der, shift 6, vi ( << 6) fordi vi jobber med 6 bits istedenfor 8 bits 
 			}else{
-				v = (v << 6) | decodingTable[data[i+l]-43];	// Ellers kjører vi en OR operasjon med (v << 6) og bokstaven vår og lagrer det i 'v' 
+				v = (v << 6) | decodingTable[data[i+l]-43];	// Ellers kjører man en OR operasjon med (v << 6) og bokstaven vår og lagrer det i 'v' 
 			}
 		}
 
@@ -123,7 +113,11 @@ size_t b64DecodedSize(char *data){
 }
 */
 
-
+	//v = (v << 6) | decodingTable[data[i+1]-43];
+		//v = data[i+2] == '=' ? v << 6 : (v << 6) | decodingTable[data[i+2]-43];
+		//v = data[i+3] == '=' ? v << 6 : (v << 6) | decodingTable[data[i+3]-43];
+		
+		
 
 
 // QXJiZWlkZXQgbWVkIGRldHRlIGVtbmV0IHNrYWwgZ2kgc3R1ZGVudGVuIGlubmZyaW5nIGkgcHJvZ3JhbW1lcmluZ3NzcHJrZXQgQyBvZyBodm9yZGFuIGRldHRlIGthbiBicnVrZXMgdGlsICBpbnRlcmFnZXJlIGRpcmVrdGUgbWVkIG9wZXJhdGl2c3lzdGVtZXQuIERldCBza2FsIG9ncyBnaSBmb3JzdGVsc2UgYXYgb3BlcmF0aXZzeXN0ZW1ldCBMaW51eCBvZyBrdW5uc2thcCBvbSBodm9yZGFuIGRldHRlIHZpcmtlci4=

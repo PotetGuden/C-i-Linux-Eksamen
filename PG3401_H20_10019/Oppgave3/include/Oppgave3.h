@@ -13,7 +13,7 @@ typedef struct _LIST {
    	int age;
    	   	
    	BYTE name[MAX_SIZE_BUFF];
-   	BYTE kommune[MAX_SIZE_BUFF];
+   	BYTE municipality[MAX_SIZE_BUFF];
 } LIST;
 
 typedef struct _LISTHEAD {		// Holder styr på head/tail på linked listen _LIST
@@ -23,7 +23,7 @@ typedef struct _LISTHEAD {		// Holder styr på head/tail på linked listen _LIST
 
 // funksjonene nedenfor returnerer OK eller ERROR.
 
-int AddToList (LISTHEAD **ppHead, void *name, int age);
+int AddToList (LISTHEAD **ppHead, void *name, int age, void *municipality);
 int RemoveFromList (LISTHEAD **ppHead, LIST *pToDelete);
 int GetElement(LISTHEAD **ppHead, int n);
 int GetElementByName(LISTHEAD **ppHead, char *name);

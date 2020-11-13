@@ -4,17 +4,17 @@
 
 #include "Oppgave3.h"
 
-LIST *CreateNode (void *name, int age){		
-   	LIST *pThis = malloc (sizeof(LIST));		// + age?
-   	if (pThis != NULL) {
-      	memset (pThis, 0, sizeof(LIST));		// + age?
-      	pThis->age = age;
-      	memcpy (pThis->name, name, sizeof(name));
-   	}
+LIST *CreateNode (LISTHEAD **ppHead, void *name, int age, void *municipality){		
+   	LIST *pThis = malloc (sizeof(LIST));		
+  	memset (pThis, 0, sizeof(LIST));
+  	
+  	pThis->age = age;
+  	memcpy(pThis->name, name, sizeof(name));
+  	memcpy(pThis->municipality, municipality, sizeof(municipality));
    	return pThis;
 }
 
-int AddToList (LISTHEAD **ppHead, void *name, int age){
+int AddToList (LISTHEAD **ppHead, void *name, int age, void *municipality){
    	int iRc = ERROR;
    	
    	if(strlen(name) > MAX_SIZE_BUFF){
@@ -23,7 +23,7 @@ int AddToList (LISTHEAD **ppHead, void *name, int age){
 		return iRc;
 	}
 	
-   	LIST *pThis = CreateNode (name, age);
+   	LIST *pThis = CreateNode (ppHead, name, age, municipality);
    	if (pThis != NULL) {
       	if ((*ppHead)->pTail == NULL && (*ppHead)->pHead == NULL) { // Ingen i listen fra før av, dette blir da eneste element i listen
          	(*ppHead)->pHead = pThis;			
@@ -41,7 +41,7 @@ int AddToList (LISTHEAD **ppHead, void *name, int age){
          	iRc = OK;
       	}
    	}
-   	//free(pThis);		// Mulig jeg ikke burde free() her?
+   	
    	return iRc;
 }
 
@@ -59,7 +59,7 @@ int GetElement(LISTHEAD **ppHead, int n){
    	
    	while (curr) {
    		if(i == n){
-   			printf("\nFant riktig nummer: %d, Navnet for denne indexen er: %s\n", n, curr->name);
+   			printf("\nFant riktig index: %d\nNavnet for denne indexen er: \"%s\" Alder: %d  Kommune: \"%s\"\n", n, curr->name, curr->age, curr->municipality);
    			iRc = OK;			
    			return iRc;			// Avslutt loop
    		} 
@@ -100,22 +100,19 @@ int DeleteNameNode(LISTHEAD **ppHead, char *name){
    	while (curr) {
    		if(strcmp(curr->name, name) == 0){
    			printf("Fjernet navnet \"%s\" fra databasen\n", name);
-   			iRc = RemoveFromList(&*ppHead, curr);
-   						
-   			
-   			//return iRc;   	
+   			iRc = RemoveFromList(ppHead, curr); 	
    		} 
       	curr = curr->pNext;
       	i++;
    	}
-	if(iRc == OK){
-		free(curr);
-	} else{
+	//if(iRc == OK){
+	//	free(curr);
+	//} else{
    		printf("\nFant ikke navnet \"%s\" i databasen..\n", name);
-   	}
+   	//}
    	return iRc;
 }
-// Liten feil som ikke fjernet siste navn i linked list, om alder var mindre enn det som var oppgitt
+
 int RemoveAllLessThanN (LISTHEAD **ppHead, int n){
 	int iRc = ERROR;
 	int i = 1;
@@ -125,13 +122,14 @@ int RemoveAllLessThanN (LISTHEAD **ppHead, int n){
    	while (curr) {
    		if(curr->age < n){
    			printf("\nFjernet navnet \"%s\" som er: %d år gammel.\n", curr->name, curr->age);
-   			iRc = RemoveFromList(&*ppHead, curr);
+   			iRc = RemoveFromList(ppHead, curr);
    			
    		} 
       	curr = curr->pNext;
+      	
       	i++;
    	}
-   	if(iRc == OK) free(curr);  
+   	//if(iRc == OK) free(curr);  
    	return iRc;
 }
 
@@ -164,6 +162,6 @@ int RemoveFromList (LISTHEAD **ppHead, LIST *pToDelete){
          	pThis = pThis->pNext;	
       	}
    	}
-   	//free(pThis);
+   	free(pThis);
 	return iRc;
 }

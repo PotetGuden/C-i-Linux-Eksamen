@@ -12,7 +12,7 @@ så lenge man har en struct med pNext,pPrev, og en som holdt styr på hva som va
 
 "Hente ut element N fra listen" hvor første element var "index 1", så var det bare å loope igjennom listen (til den ble null) med en int som holdt styr på hvilken index man var på (som startet på 1 selvfølgelig) og printet bare ut all informasjon om det elementet når man traff den indexen
 
-"Finne element som matcher navn i listen", mye av det samme som det over, bare at man leter etter node->pszName.
+"Finne element som matcher navn i listen", mye av det samme som det over, bare at man leter etter node->name.
 
 "Slette alle elementer i listen som har et gitt navn" litt av det samme. 
 	loope igjennom listen
@@ -26,16 +26,18 @@ så lenge man har en struct med pNext,pPrev, og en som holdt styr på hva som va
 og hvis man fant noden så huske å bruke free()
 
 Etter jeg hadde laget disse funksjonene så begynte jeg å fikse på structen sånn at det ble riktig (var vel nesten bare å bytte litt navn + legge til en til variabel)
-Så fant jeg frem en av switch-case oppgavene jeg hadde gjort tidligere og fjernet den hardkodede "input" jeg hadde og spurte heller bruker om de kunne taste inn et tall mellom 1-5, med forksjellige alternativer for hvert tall.
+Så fant jeg frem en av switch-case oppgavene jeg hadde gjort tidligere og fjernet den hardkodede "input" jeg hadde og spurte heller bruker om de kunne taste inn et tall mellom 1-6, med forksjellige alternativer for hvert tall.
 
 og så flyttet jeg inn de riktige funksjonene til å gjøre hva de skulle om bruker tastet inn "riktig" tall.
 
-Siden jeg brukte getchar() så valgte jeg å escape unna \n ved å sjekke om det i øverst av while loopen, for så å "skippe" switch-casen med en case for "\n" som bare breaker.
+Siden jeg brukte getchar() så valgte jeg å escape unna '\n' ved å sjekke om det i øverst av while loopen, for så å "skippe" switch-casen med en case for "\n" som bare breaker.
 
 Jeg valgte å spørre bruker om de vil fortsette for ryddighetens skyld (hva jeg syntes passet best ihvertfall)
 
 Helt til slutt fikset jeg litt opp i noen bugs som oppsto etter bruker hadde gjort litt forskjellige alternativer :)
 
 Vil få noen warnings når man compiler koden, fordi jeg ikke "sjekker" return valuen til scanf (Kunne "fikset" de ved å lage noen if-setninger til scanf(), men det ble uoversiktlig og unødvendig) derfor har det ikke noe å si i dette tilfelle.
+
+Til slutt looper jeg igjennom listen og frigjør minne til alle nodene i listen, og evt andre pointere jeg hadde mallocet.
 
 

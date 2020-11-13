@@ -1,2 +1,3 @@
-Her er det masse tekst som skal leses 10 og 10 bokstaver om gangen
-her er en ny linje
+Her har vi masse tekst som skal
+leses 10 og 10
+tegn om gangen!

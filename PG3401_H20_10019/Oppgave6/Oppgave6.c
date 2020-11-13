@@ -4,18 +4,16 @@
 #include <string.h>
 #include <stdlib.h>
 #include <semaphore.h>
-#include <sys/stat.h> // for mode constants
 #include <fcntl.h>	  // for 0_constants
 
-#include <time.h>
 #include "Oppgave6.h"
 
 #define SEM_PRODUCER_NAME "semproducer"
 #define SEM_RECEIVER_NAME "semreceiver"
+#define MODE 0644	// 0 = prefix for octal, 6 = read/write permission(user), 4 = read perm.(group), 4 = read perm.(others)  (Kunne gitt andre verdier, så lenge user har r/w permisison)
 #define TRUE 1
 #define FALSE 0
 
-// Lage en define MAX_BUFF_SIZE 11? og ta -1 på forloops
 #pragma (1)			// Fjerne padding 
 typedef struct MyStruct {
 	char buff[11];	// [11] brukes som 0-terminering
@@ -25,29 +23,28 @@ typedef struct MyStruct {
 } MyStruct;
 #pragma()
 
-void *PrintMessage (void *ms){
+void *WorkThread (void *ms){
 	
- 	MyStruct *ms2 = malloc(sizeof(MyStruct));
- 	ms2 = (MyStruct*) ms;
+ 	MyStruct *ms2 = (MyStruct*) ms;
  
    	FILE *fp;
 	
    	fp = fopen(ms2->fileName, "r");
 	if(fp == NULL){
-		printf("Ugyldig filnavn\n"); 
+		printf("You gave a non-valid filename\n"); 
 		
 		exit(1);
 	}
-   	// Prøv å bruk sem_init istedenfor sem_open..
-   	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, 0644 , 0);		// Lager semaphore 1
+
+   	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, MODE , 0);		// Lager semaphore 1
 	if(sem_prod == SEM_FAILED){
-		printf("EROOR1");
+		printf("Failed to open Sempahore!");
 		exit(1);
 	}
 	
-	sem_t *sem_receiv = sem_open(SEM_RECEIVER_NAME, O_CREAT, 0644, 0);		// Lager semaphore 2
+	sem_t *sem_receiv = sem_open(SEM_RECEIVER_NAME, O_CREAT, MODE, 0);		// Lager semaphore 2
 	if(sem_receiv == SEM_FAILED){
-		printf("EROOR2");
+		printf("Failed to open Semaphore!");
 		exit(1);
 	}
 
@@ -57,9 +54,8 @@ void *PrintMessage (void *ms){
 		sem_wait(sem_receiv);			// Venter på at main skal gi klar signal
 		fread(ms2->buff,sizeof(char), sizeof(ms2->buff)-1, (FILE*)fp);	
 		if(feof(fp)){									
-			ms2->buff[strlen(ms2->buff)-1] = '\0';	// 0-terminerer manuelt på slutten av buff 
-			ms2->totalLetters += strlen(ms2->buff);
-			printf("String: %s strlen: %d sizeof: %d\n", ms2->buff, strlen(ms2->buff), sizeof(ms2->buff)); // SLETT DENNE
+			ms2->buff[strlen(ms2->buff)] = '\0';		// 0-terminerer manuelt på slutten av buff 
+			ms2->totalLetters += strlen(ms2->buff)-1; 	// -1 er for 0-termineringen
 			ms2->endOfFile = TRUE;
 			break;
 		}
@@ -70,7 +66,8 @@ void *PrintMessage (void *ms){
    	
    	fclose(fp); 
 	sem_post(sem_prod);					// Valgte å sette den her istedenfor siste gang inni loopen, siden jeg trengte å close fp, mest for ordensskyld.			
-   	
+   	sem_close(sem_prod);
+   	sem_close(sem_receiv);
    	return NULL;
 }
 
@@ -91,47 +88,44 @@ void main (int argc, char *argv[]){
  	
 	sem_unlink(SEM_PRODUCER_NAME);		// Fjerner aktive semaphores hvis de finnes.
    	sem_unlink(SEM_RECEIVER_NAME);
-
 	
-	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, 0644, 0);		// Åpner semaphore 1
+	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, MODE, 0);		// Åpner semaphore 1
 	if(sem_prod == SEM_FAILED){
 		printf("Could not open S1");
 		exit(1);
 	}
 
-	sem_t *sem_receiv = sem_open(SEM_RECEIVER_NAME, O_CREAT, 0644, 1);		// Åpner semaphore 2   
+	sem_t *sem_receiv = sem_open(SEM_RECEIVER_NAME, O_CREAT, MODE, 1);		// Åpner semaphore 2   
 	if(sem_receiv == SEM_FAILED){
 		printf("Could not open S2");
 		exit(1);
 	}
 
 	pthread_t pThread1;
-	pthread_create (&pThread1, NULL, PrintMessage, (void *) ms);
+	pthread_create (&pThread1, NULL, WorkThread, (void *) ms);
 	
-	int t = 0;
 	while(1){
-		sem_wait(sem_prod);
-		if(strlen(ms->buff) <= 1) break; 		// 0-termineringen som henger igjen fra arbeidstråden, om lengden på bufferet er mindre enn dette.
+		sem_wait(sem_prod);										// Venter på arbeidstråd signal
 		
+		if(strlen(ms->buff) <= 1 && ms->buff[0] == '\0'){		// 0-termineringen som henger igjen fra arbeidstråden, om lengden på bufferet er mindre enn dette.
+			break; 					
+		}
 		printf("From main thread:\n%s\n\n", ms->buff);
 		
 		memset(ms->buff,0,sizeof(ms->buff));
 		
 		if(ms->endOfFile == TRUE){	
-			printf("THIS IS END\n");
 			break;
 		}
 		
-		sem_post(sem_receiv);
+		sem_post(sem_receiv);									// Gir arbeidstråd signal
 	}
 	
 	printf("Number of letters in the file is: %d\n", ms->totalLetters);
 	
-   	pthread_join(pThread1, NULL);  			// Venter på at arbeidstråd skal bli ferdig
+   	pthread_join(pThread1, NULL);  								// Venter på at arbeidstråd skal bli ferdig
    	
    	sem_close(sem_prod);
-   	sem_close(sem_receiv);   
-	
+   	sem_close(sem_receiv);
 	free(ms);
-   	//printf("After thread finished.\n");
 }

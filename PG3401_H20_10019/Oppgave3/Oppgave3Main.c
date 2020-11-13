@@ -31,13 +31,13 @@ int main (void){
 	
 	while(input != '6'){
 		if(input != '\n'){		// for å slippe unna loop nr.2 pga enter knappen og getchar()
-				printf("Du får nå 5 alternativer:\n");
+				printf("Du får nå 6 alternativer:\n");
 			   	printf("1. Legge til et element i en liste\n");
 			   	printf("2. Hente ut element N fra listen (du velger N)\n");
 			   	printf("3. Hente ut element som matcher navn og får tilbake element nr den har\n");
 			   	printf("4. Sletter alle elementer med ditt gitte navn\n");
 			   	printf("5. Sletter alle elementer som har alder mindre enn det du oppgir\n");
-			   	printf("6. For å avslutte skriv skriv: x\n\n");
+			   	printf("6. For å avslutte.\n\n");
 			   	
 			   	printf("OBS: Husk at du må legge til minst ett element først\n");
 			   	printf("Skriv inn tallet til det alternativet du vil gjøre noe med: ");	   	
@@ -50,8 +50,9 @@ int main (void){
 				printf("Du har valgt 1: Legg til et element\n\n");
 				printf("Skriv inn et navn, alder og kommune (med mellomrom imellom): ");
 				memset(name,0,sizeof(char*));
-				scanf("%s %d %s", name, &number, municipality); // Kanskje lage en if-setning her
-				if(AddToList(&ppHead, name, number) == ERROR) break;				// Legger til bruker input i linked list
+				memset(municipality,0,sizeof(char*));
+				scanf("%s %d %s", name, &number, municipality); 
+				if(AddToList(&ppHead, name, number, municipality) == ERROR) break;				// Legger til bruker input i linked list
 				printf("\nDu har lagt til '%s' inn i databasen\n\n", name);
 				PrintList(ppHead);													// Printer ut hele current linked list
 				if(ContinueOrNot() == ERROR) input = '6';							// Spør bruker om de vil fortsette, alt utenom "ja" vil resultere i at input = x, som avslutter loop
@@ -100,9 +101,29 @@ int main (void){
 				break;
 		}
 	}
-	printf("avslutetausdhiuasdhiasdh");
-	free(ppHead);
+	
+	printf("HMMM\n");
+	
+	// For å frigjøre alle elementer som fortsatt er i linked listen
+	LIST *curr = ppHead->pHead;
+	int p = 1;
+	while (curr != NULL) {
+  		if(curr->pPrev != NULL){
+  			printf("%d: %s",p, curr->pPrev->name);
+  			free(curr->pPrev); 
+  		} 
+  		if(curr->pNext == NULL){
+  			printf("%d: %s",p, curr->name);
+  			free(curr);
+  			break;
+  		}
+  		p++;
+  		curr = curr->pNext;
+	}
 	free(name);
+	free(municipality);
+	free(ppHead);
+	
 	return 0;
 }
 
@@ -130,7 +151,7 @@ void PrintList (LISTHEAD *ppHead){
    LIST *curr = ppHead->pHead;
    printf("Den foreløpig linked listen er som følger:\n");
    while (curr) {
-      printf ("%d: Name = \"%s\" Age = %d\n", ++i, curr->name, curr->age);
+      printf ("%d: Name = \"%s\" Age = %d  Municipality = \"%s\"\n", ++i, curr->name, curr->age, curr->municipality);
       curr = curr->pNext;
    }
    printf ("\n");

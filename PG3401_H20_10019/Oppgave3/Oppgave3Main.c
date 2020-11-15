@@ -102,18 +102,15 @@ int main (void){
 		}
 	}
 	
-	printf("HMMM\n");
 	
 	// For å frigjøre alle elementer som fortsatt er i linked listen
 	LIST *curr = ppHead->pHead;
 	int p = 1;
 	while (curr != NULL) {
   		if(curr->pPrev != NULL){
-  			printf("%d: %s",p, curr->pPrev->name);
   			free(curr->pPrev); 
   		} 
   		if(curr->pNext == NULL){
-  			printf("%d: %s",p, curr->name);
   			free(curr);
   			break;
   		}
@@ -151,7 +148,7 @@ void PrintList (LISTHEAD *ppHead){
    LIST *curr = ppHead->pHead;
    printf("Den foreløpig linked listen er som følger:\n");
    while (curr) {
-      printf ("%d: Name = \"%s\" Age = %d  Municipality = \"%s\"\n", ++i, curr->name, curr->age, curr->municipality);
+      printf ("%d: Navn = \"%s\" Alder = %d  Kommune = \"%s\"\n", ++i, curr->name, curr->age, curr->municipality);
       curr = curr->pNext;
    }
    printf ("\n");

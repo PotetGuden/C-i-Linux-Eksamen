@@ -105,11 +105,9 @@ int DeleteNameNode(LISTHEAD **ppHead, char *name){
       	curr = curr->pNext;
       	i++;
    	}
-	//if(iRc == OK){
-	//	free(curr);
-	//} else{
-   		printf("\nFant ikke navnet \"%s\" i databasen..\n", name);
-   	//}
+	if(iRc == ERROR){
+   		printf("\nFant ikke navnet \"%s\" i databasen..\n", name);		
+   	}
    	return iRc;
 }
 

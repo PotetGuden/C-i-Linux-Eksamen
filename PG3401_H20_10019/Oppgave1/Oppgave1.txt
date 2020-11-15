@@ -1,7 +1,0 @@
-Oppgave 1. Generelt
-
-	a)	Programmeringspråket C er et kraftig språk og kan brukes til å lage forskjellig software som operativ system, databaser, compilers, embedded, osv. C er også et av de mest kjente og brukte 		språkene vi har.
-	
-	b)	Linus Torvalds er en finsk programmerer med en mastergrad i computer science. Linus er også "faren" av Linux, han startet det hele som en hobby inspirert av operativsystemet Minix, som jo da 			ble til noe mye mer.
-	
-	c) 	Kommandoen "sudo" brukes i shell for å gi "admin" priviligerier til det du skal til å gjøre videre. Det brukes ofte når man skal laste ned ting fra shell. Hvis man feks vil ha tilgang til å 			bruke en port under 1024 i oppgave 7, så må man bruke sudo først, for å få riktige rettigheter.

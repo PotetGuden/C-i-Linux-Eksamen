@@ -5,7 +5,7 @@
 
 #include "Oppgave5.h"
 
-#define MAX_BUFFER_SIZE 1000
+
 
 int main(int argc, char *argv[]){
 
@@ -56,20 +56,18 @@ int b64Decoder(char *data, char *output, size_t outLength){
 	size_t dataLength;
 	size_t i;
 	size_t j;
-	int    v;
-
+	int v;
+	int l;
 	if (data == NULL || output == NULL){
 		return 0;
 	}
 
 	dataLength = strlen(data);
-	if (dataLength % 4 != 0)
-		return 0;
 
 	for (i = 0, j = 0; i < dataLength; i += 4, j += 3) {
 		v = decodingTable[data[i]-43];
 	
-		for(int l = 0; l <= 3; l++){
+		for(l = 0; l <= 3; l++){
 			if(data[i+l] == '='){					// '=' er tegnet for padding noe som vil være på slutten av teksten vår.
 				v = v << 6;							// hvis vi er der, shift 6, vi ( << 6) fordi vi jobber med 6 bits istedenfor 8 bits 
 			}else{
@@ -77,7 +75,7 @@ int b64Decoder(char *data, char *output, size_t outLength){
 			}
 		}
 
-		output[j] = (v >> 16) & 0xFF;				// Gjør AND operasjoner
+		output[j] = (v >> 16) & 0xFF;				// Lagrer en bokstav i outputten vår og gjør AND operasjoner med 1111 1111
 		if (data[i+2] != '=')
 			output[j+1] = (v >> 8) & 0xFF;
 		if (data[i+3] != '=')

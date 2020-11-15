@@ -4,72 +4,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <semaphore.h>
-#include <fcntl.h>	  // for 0_constants
+#include <fcntl.h>	  // for O_constants
 
 #include "Oppgave6.h"
-
-#define SEM_PRODUCER_NAME "semproducer"
-#define SEM_RECEIVER_NAME "semreceiver"
-#define MODE 0644	// 0 = prefix for octal, 6 = read/write permission(user), 4 = read perm.(group), 4 = read perm.(others)  (Kunne gitt andre verdier, så lenge user har r/w permisison)
-#define TRUE 1
-#define FALSE 0
-
-#pragma (1)			// Fjerne padding 
-typedef struct MyStruct {
-	char buff[11];	// [11] brukes som 0-terminering
-	int totalLetters;
-	char *fileName;
-	int endOfFile;
-} MyStruct;
-#pragma()
-
-void *WorkThread (void *ms){
-	
- 	MyStruct *ms2 = (MyStruct*) ms;
- 
-   	FILE *fp;
-	
-   	fp = fopen(ms2->fileName, "r");
-	if(fp == NULL){
-		printf("You gave a non-valid filename\n"); 
-		
-		exit(1);
-	}
-
-   	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, MODE , 0);		// Lager semaphore 1
-	if(sem_prod == SEM_FAILED){
-		printf("Failed to open Sempahore!");
-		exit(1);
-	}
-	
-	sem_t *sem_receiv = sem_open(SEM_RECEIVER_NAME, O_CREAT, MODE, 0);		// Lager semaphore 2
-	if(sem_receiv == SEM_FAILED){
-		printf("Failed to open Semaphore!");
-		exit(1);
-	}
-
-	printf("Reading 10 and 10 characters from the file: %s\n\n", ms2->fileName);
-		
-   	while(1){	
-		sem_wait(sem_receiv);			// Venter på at main skal gi klar signal
-		fread(ms2->buff,sizeof(char), sizeof(ms2->buff)-1, (FILE*)fp);	
-		if(feof(fp)){									
-			ms2->buff[strlen(ms2->buff)] = '\0';		// 0-terminerer manuelt på slutten av buff 
-			ms2->totalLetters += strlen(ms2->buff)-1; 	// -1 er for 0-termineringen
-			ms2->endOfFile = TRUE;
-			break;
-		}
-		ms2->buff[11] = '\0';
-		ms2->totalLetters += 10;
-		sem_post(sem_prod);				// Gir main klar signal
-   	}
-   	
-   	fclose(fp); 
-	sem_post(sem_prod);					// Valgte å sette den her istedenfor siste gang inni loopen, siden jeg trengte å close fp, mest for ordensskyld.			
-   	sem_close(sem_prod);
-   	sem_close(sem_receiv);
-   	return NULL;
-}
 
 void main (int argc, char *argv[]){
 	if(argc < 2){
@@ -89,7 +26,7 @@ void main (int argc, char *argv[]){
 	sem_unlink(SEM_PRODUCER_NAME);		// Fjerner aktive semaphores hvis de finnes.
    	sem_unlink(SEM_RECEIVER_NAME);
 	
-	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, MODE, 0);		// Åpner semaphore 1
+	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, MODE, 0);		// Åpner semaphore 1 - SEM_PROD_NAME/MODE er defines fra headerfil
 	if(sem_prod == SEM_FAILED){
 		printf("Could not open S1");
 		exit(1);
@@ -128,4 +65,51 @@ void main (int argc, char *argv[]){
    	sem_close(sem_prod);
    	sem_close(sem_receiv);
 	free(ms);
+}
+
+void *WorkThread (void *ms){
+	
+ 	MyStruct *ms2 = (MyStruct*) ms;
+ 
+   	FILE *fp;
+	
+   	fp = fopen(ms2->fileName, "r");
+	if(fp == NULL){
+		printf("You gave a non-valid filename\n"); 
+		exit(1);
+	}
+
+   	sem_t *sem_prod = sem_open(SEM_PRODUCER_NAME, O_CREAT, MODE , 0);		// Lager semaphore 1
+	if(sem_prod == SEM_FAILED){
+		printf("Failed to open Sempahore!");
+		exit(1);
+	}
+	
+	sem_t *sem_receiv = sem_open(SEM_RECEIVER_NAME, O_CREAT, MODE, 0);		// Lager semaphore 2
+	if(sem_receiv == SEM_FAILED){
+		printf("Failed to open Semaphore!");
+		exit(1);
+	}
+
+	printf("Reading 10 and 10 characters from the file: %s\n\n", ms2->fileName);
+		
+   	while(1){	
+		sem_wait(sem_receiv);			// Venter på at main skal gi klar signal
+		fread(ms2->buff,sizeof(char), sizeof(ms2->buff)-1, (FILE*)fp);	
+		if(feof(fp)){									
+			ms2->buff[strlen(ms2->buff)] = '\0';		// 0-terminerer manuelt på slutten av buff 
+			ms2->totalLetters += strlen(ms2->buff)-1; 	
+			ms2->endOfFile = TRUE;
+			break;
+		}
+		ms2->buff[11] = '\0';
+		ms2->totalLetters += 10;
+		sem_post(sem_prod);				// Gir main klar signal
+   	}
+   	
+   	fclose(fp); 
+	sem_post(sem_prod);					// Valgte å sette den her istedenfor siste gang inni loopen, siden jeg trengte å close fp, mest for ordensskyld.			
+   	sem_close(sem_prod);
+   	sem_close(sem_receiv);
+   	return NULL;
 }

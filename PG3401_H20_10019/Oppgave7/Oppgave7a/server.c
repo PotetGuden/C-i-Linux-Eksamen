@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     int sockfd, connfd, len; 
     struct sockaddr_in serveraddress, client; 
   
-    sockfd = socket(AF_INET, SOCK_STREAM, 0); 					// Socket
+    sockfd = socket(AF_INET, SOCK_STREAM, 0); 								// Socket
     if(sockfd == -1){
     	printf("Failed to create socket..\n");
     	exit(1);
@@ -38,21 +38,21 @@ int main(int argc, char *argv[])
     bzero(&serveraddress, sizeof(serveraddress)); 
   	
     serveraddress.sin_family = AF_INET; 
-    serveraddress.sin_addr.s_addr = htonl(INADDR_ANY); 				// Tar imot hvem som helst
+    serveraddress.sin_addr.s_addr = htonl(INADDR_ANY); 						// Tar imot hvem som helst
     serveraddress.sin_port = htons(port); 							
  
     if((bind(sockfd, (SA*)&serveraddress, sizeof(serveraddress))) != 0){	// Bind
-   		printf("Failed to bind socket, use another port\n");
+   		printf("Failed to bind socket, try another port\n");
    		exit(1);	 	
    	} 
   
-    listen(sockfd, 5); 		// Listen    "5" - annbefalte nummer for ventende connections
+    listen(sockfd, 5); 														// Listen    "5" - annbefalte nummer for ventende connections
     printf("Waiting for client to connect..\n");
     
 
     len = sizeof(client); 
   
-    connfd = accept(sockfd, (SA*)&client, &len); 					// Accept
+    connfd = accept(sockfd, (SA*)&client, &len); 							// Accept
     if(connfd < 0){
     	printf("Failed to accept\n");
     	exit(1);
@@ -60,14 +60,14 @@ int main(int argc, char *argv[])
     	printf("Accepted the client\n");
     }
   
-    func(connfd, id); 
+    handleConnection(connfd, id); 
   
     close(sockfd); 
     
    /*
    structs
    åpne socket
-   bzero
+   bzero/memset
    
    sette client settings
    
@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
 
 } 
 
-void func(int sockfd, char *id){ 
+void handleConnection(int sockfd, char *id){ 
     char buff[MAX_BUFF_SIZE]; 
     int n = 0; 
   	int numberOfMsg = 0;
@@ -87,12 +87,12 @@ void func(int sockfd, char *id){
 	memset(handshake,0,sizeof(char*));
    
     while(1){ 
-        bzero(buff, MAX_BUFF_SIZE); 
+		memset(buff,0,MAX_BUFF_SIZE);
 
-       	read(sockfd, buff, sizeof(buff)); 
+       	read(sockfd, buff, sizeof(buff)); 			// Venter på en write()
        	
        	if(numberOfMsg == 0){						// Mottar ingenting, skal bare sende id til klient
-       		bzero(buff,MAX_BUFF_SIZE);
+			memset(buff,0,MAX_BUFF_SIZE);
        		write(sockfd, id, sizeof(id));
        		numberOfMsg++;
        		continue;
@@ -101,7 +101,7 @@ void func(int sockfd, char *id){
        	if(numberOfMsg == 1 && buff[0] == 'Y'){		// Om bruker svarer 'Y', Sammenligner ascii verdiene
         	handshake = "200 OK\n";
         	printf("Server: %s", buff); 
-        	bzero(buff, MAX_BUFF_SIZE); 
+			memset(buff,0,MAX_BUFF_SIZE);
         	
         	while(handshake[n] != '\n'){
         		buff[n] = handshake[n];
@@ -118,7 +118,7 @@ void func(int sockfd, char *id){
         	printf("Closing server..\n");
         	handshake = "403 Forbidden\n";
         	
-        	bzero(buff, MAX_BUFF_SIZE);
+			memset(buff,0,MAX_BUFF_SIZE);
         	
         	while(handshake[n] != '\n'){
         		buff[n] = handshake[n];
@@ -132,19 +132,15 @@ void func(int sockfd, char *id){
         
         printf("From Client: %s\nTo Client : ", buff); 
         
-        bzero(buff, MAX_BUFF_SIZE); 
+		memset(buff,0,MAX_BUFF_SIZE);
         n = 0; 
  	
         while ((buff[n++] = getchar()) != '\n');
  
         write(sockfd, buff, sizeof(buff)); 
 
-        if (strncmp("exit", buff, 4) == 0) { 
-            printf("Server shutting down..\n"); 
-            break; 
-        } 
         numberOfMsg++;
     } 
-    //free(handshake);
+    
 } 
 
